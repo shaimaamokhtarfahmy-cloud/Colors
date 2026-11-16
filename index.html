@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معمل خلط الألوان للأطفال</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e0f7fa 0%, #fff9c4 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        h1 {
+            color: #2e3b4e;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .instructions {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .lab-stage {
+            position: relative;
+            width: 90%;
+            max-width: 750px;
+            background: #ffffff;
+            border-radius: 25px;
+            padding: 30px 20px 0 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            border: 4px solid #b2ebf2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .characters-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .kid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        .kid.happy {
+            animation: jump 0.6s ease infinite alternate;
+        }
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
+        }
+        .kid-avatar {
+            font-size: 5.5rem;
+            line-height: 1;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+        }
+        .kid-coat {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            padding: 5px 15px;
+            border-radius: 12px 12px 0 0;
+            font-weight: bold;
+            color: #444;
+            font-size: 0.9rem;
+            margin-top: -5px;
+        }
+        /* دورق الخلط الرئيسي */
+        .beaker-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .beaker {
+            width: 120px;
+            height: 150px;
+            border: 5px solid #90caf9;
+            border-top: none;
+            border-radius: 0 0 45px 45px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(227, 242, 253, 0.3);
+            box-shadow: inset 0 -5px 15px rgba(0,0,0,0.08);
+        }
+        .beaker-rim {
+            width: 136px;
+            height: 12px;
+            background: #90caf9;
+            border-radius: 6px;
+        }
+        .beaker-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: transparent;
+            transition: height 0.5s ease, background-color 0.5s ease;
+        }
+        .bubbles {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            opacity: 0;
+        }
+        .bubbles.active {
+            opacity: 1;
+        }
+        .bubble {
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: rise 1s infinite ease-in;
+        }
+        .bubble:nth-child(2) { width: 16px; height: 16px; animation-delay: 0.3s; }
+        .bubble:nth-child(3) { width: 10px; height: 10px; animation-delay: 0.6s; }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-90px) scale(1.4); opacity: 0; }
+        }
+        /* طاولة المعمل وأنابيب الاختبار */
+        .lab-table {
+            width: calc(100% + 40px);
+            background: #8d6e63;
+            border-top: 8px solid #6d4c41;
+            border-radius: 0 0 21px 21px;
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 3;
+        }
+        .tubes-rack {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: 18px;
+        }
+        .tube-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.25s ease;
+        }
+        .tube-wrapper:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+        .tube-wrapper.selected {
+            transform: translateY(-15px) rotate(-12deg);
+        }
+        .tube {
+            width: 38px;
+            height: 100px;
+            border: 3px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            background: rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .tube::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -4px;
+            width: 40px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+        }
+        .tube-liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 75%;
+            border-radius: 0 0 16px 16px;
+        }
+        .tube-label {
+            color: #fff;
+            font-weight: bold;
+            margin-top: 8px;
+            font-size: 0.95rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        /* نتيجة الخلط والانفجار */
+        .result-banner {
+            position: absolute;
+            top: 15px;
+            background: #ffffff;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transform: scale(0);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            border: 3px solid #eee;
+        }
+        .result-banner.show {
+            transform: scale(1);
+        }
+        .reset-btn {
+            margin-top: 15px;
+            padding: 10px 28px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            background: #ff7043;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .reset-btn:hover {
+            background: #f4511e;
+            transform: scale(1.05);
+        }
+        /* شظايا الانفجار الملون */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 20;
+            animation: explode 0.9s ease-out forwards;
+        }
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+        .flash {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            z-index: 15;
+        }
+        .flash.boom {
+            animation: flashAnim 0.5s ease-out;
+        }
+        @keyframes flashAnim {
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧪 معمل خلط الألوان العجيب 🎨</h1>
+    <div class="instructions" id="instructionText">اختر أنبوبين من الألوان لاكتشاف اللون الجديد!</div>
+
+    <div class="lab-stage" id="labStage">
+        <div class="result-banner" id="resultBanner">برتقالي!</div>
+
+        <div class="characters-row">
+            <!-- الطفل -->
+            <div class="kid" id="boyKid">
+                <div class="kid-avatar">👦🏻</div>
+                <div class="kid-coat">عالم صغير 🥼</div>
+            </div>
+
+            <!-- دورق التفاعل -->
+            <div class="beaker-container" id="beakerBox">
+                <div class="flash" id="boomFlash"></div>
+                <div class="beaker-rim"></div>
+                <div class="beaker">
+                    <div class="beaker-liquid" id="beakerLiquid"></div>
+                    <div class="bubbles" id="bubbles">
+                        <div class="bubble"></div>
+                        <div class="bubble"></div>
+                        <div class="bubble"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الطفلة -->
+            <div class="kid" id="girlKid">
+                <div class="kid-avatar">👧🏻</div>
+                <div class="kid-coat">عالمة صغيرة 🥼</div>
+            </div>
+        </div>
+
+        <!-- طاولة الأنابيب -->
+        <div class="lab-table">
+            <div class="tubes-rack">
+                <div class="tube-wrapper" onclick="selectTube('red', '#ef5350', 'أحمر', this)">
+                    <div class="tube"><div class="tube-liquid" style="background: #ef5350;"></div></div>
+                    <span class="tube-label">أحمر</span>
+                </div>
+                <div class="tube-wrapper" onclick="selectTube('yellow', '#ffee58', 'أصفر', this)">
+                    <div class="tube"><div class="tube-liquid" style="background: #ffee58;"></div></div>
+                    <span class="tube-label">أصفر</span>
+                </div>
+                <div class="tube-wrapper" onclick="selectTube('blue', '#42a5f5', 'أزرق', this)">
+                    <div class="tube"><div class="tube-liquid" style="background: #42a5f5;"></div></div>
+                    <span class="tube-label">أزرق</span>
+                </div>
+                <div class="tube-wrapper" onclick="selectTube('white', '#ffffff', 'أبيض', this)">
+                    <div class="tube"><div class="tube-liquid" style="background: #ffffff;"></div></div>
+                    <span class="tube-label">أبيض</span>
+                </div>
+                <div class="tube-wrapper" onclick="selectTube('black', '#37474f', 'أسود', this)">
+                    <div class="tube"><div class="tube-liquid" style="background: #37474f;"></div></div>
+                    <span class="tube-label">أسود</span>
+                </div>
+            </div>
+            <button class="reset-btn" onclick="resetLab()">إفراغ الدورق 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedColors = [];
+        let isMixing = false;
+
+        // جدول خلط الألوان
+        const colorRecipes = {
+            'red+yellow': { name: 'برتقالي', hex: '#ff9800' },
+            'blue+red': { name: 'بنفسجي', hex: '#9c27b0' },
+            'blue+yellow': { name: 'أخضر', hex: '#4caf50' },
+            'red+white': { name: 'وردي', hex: '#f48fb1' },
+            'blue+white': { name: 'سماوي', hex: '#81d4fa' },
+            'black+white': { name: 'رمادي', hex: '#9e9e9e' },
+            'black+red': { name: 'عنابي', hex: '#880e4f' },
+            'black+yellow': { name: 'زيتي', hex: '#827717' },
+            'black+blue': { name: 'كحلي', hex: '#1a237e' },
+            'white+yellow': { name: 'ليموني فاتح', hex: '#fff59d' }
+        };
+
+        // توليد صوت انفجار مرح باستخدام Web Audio API
+        function playBoomSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // صوت فرقعة التفاعل
+                const bufferSize = ctx.sampleRate * 0.4;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.08));
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(600, ctx.currentTime);
+
+                noise.connect(filter);
+                filter.connect(ctx.destination);
+                noise.start();
+
+                // نغمة نجاح مبهجة بعد الانفجار
+                setTimeout(() => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.45);
+                }, 180);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        // نطق النص باللغة العربية
+        function speakArabic(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.95;
+                utterance.pitch = 1.15;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // إنشاء شظايا الانفجار البصري
+        function createExplosion(hexColor) {
+            const beakerBox = document.getElementById('beakerBox');
+            const flash = document.getElementById('boomFlash');
+            flash.classList.remove('boom');
+            void flash.offsetWidth; // إعادة تفعيل الأنيميشن
+            flash.classList.add('boom');
+
+            for (let i = 0; i < 35; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 14 + 8;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.background = i % 3 === 0 ? '#ffffff' : hexColor;
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 140 + 50;
+                const tx = Math.cos(angle) * distance + 'px';
+                const ty = Math.sin(angle) * distance + 'px';
+
+                particle.style.setProperty('--tx', tx);
+                particle.style.setProperty('--ty', ty);
+
+                beakerBox.appendChild(particle);
+                setTimeout(() => particle.remove(), 900);
+            }
+        }
+
+        function selectTube(id, hex, arabicName, element) {
+            if (isMixing) return;
+            if (selectedColors.length >= 2) {
+                resetLab();
+            }
+
+            selectedColors.push({ id, hex, arabicName });
+            element.classList.add('selected');
+
+            const liquid = document.getElementById('beakerLiquid');
+            const bubbles = document.getElementById('bubbles');
+
+            if (selectedColors.length === 1) {
+                liquid.style.height = '45%';
+                liquid.style.backgroundColor = hex;
+                bubbles.classList.add('active');
+                document.getElementById('instructionText').textContent = `أضفت اللون ال${arabicName}.. اختر لوناً آخر للخلط!`;
+                speakArabic(arabicName);
+            } else if (selectedColors.length === 2) {
+                isMixing = true;
+                const c1 = selectedColors[0];
+                const c2 = selectedColors[1];
+
+                // تحديد نتيجة الخلط
+                let result;
+                if (c1.id === c2.id) {
+                    result = { name: c1.arabicName, hex: c1.hex };
+                } else {
+                    const key = [c1.id, c2.id].sort().join('+');
+                    result = colorRecipes[key] || { name: 'بني', hex: '#795548' };
+                }
+
+                setTimeout(() => {
+                    // تنفيذ الانفجار وتغيير اللون
+                    playBoomSound();
+                    createExplosion(result.hex);
+
+                    liquid.style.height = '85%';
+                    liquid.style.backgroundColor = result.hex;
+
+                    const banner = document.getElementById('resultBanner');
+                    banner.textContent = `💥 لون ${result.name}!`;
+                    banner.style.color = result.hex === '#ffffff' || result.hex === '#fff59d' ? '#333' : result.hex;
+                    banner.style.borderColor = result.hex;
+                    banner.classList.add('show');
+
+                    document.getElementById('boyKid').classList.add('happy');
+                    document.getElementById('girlKid').classList.add('happy');
+                    document.getElementById('instructionText').textContent = `${c1.arabicName} + ${c2.arabicName} = ${result.name}!`;
+
+                    // نطق اسم اللون الجديد
+                    setTimeout(() => {
+                        speakArabic(`حصلنا على اللون ال${result.name}`);
+                        isMixing = false;
+                    }, 350);
+                }, 300);
+            }
+        }
+
+        function resetLab() {
+            if (isMixing) return;
+            selectedColors = [];
+            document.getElementById('beakerLiquid').style.height = '0%';
+            document.getElementById('beakerLiquid').style.backgroundColor = 'transparent';
+            document.getElementById('bubbles').classList.remove('active');
+            document.getElementById('resultBanner').classList.remove('show');
+            document.getElementById('boyKid').classList.remove('happy');
+            document.getElementById('girlKid').classList.remove('happy');
+            document.getElementById('instructionText').textContent = 'اختر أنبوبين من الألوان لاكتشاف اللون الجديد!';
+            document.querySelectorAll('.tube-wrapper').forEach(el => el.classList.remove('selected'));
+        }
+    </script>
+</body>
+</html>
